@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_rating/Meal_api.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 void main() {
@@ -14,24 +15,22 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   var controller = TextEditingController();
-  var enabled = false;
+  bool enabled = false;
   List<Score> score = [];
   double rate = 0;
-
   @override
   void initState() {
     super.initState();
-    score.add(Score(rate: 5, comment: 'ㄴㄴ'));
-    score.add(Score(rate: 1, comment: 'ㅇ'));
+    score.add(Score(rate: 5, comment: 'dddd'));
+    score.add(Score(rate: 1, comment: 'dddddd'));
   }
 
   @override
   Widget build(BuildContext context) {
     var listView = ListView.builder(
       itemBuilder: (context, index) => ListTile(
-        leading: Text('${score[index].rate}'),
-        title: Text(score[index].comment),
-      ),
+          leading: Text('${score[index].rate}'),
+          title: Text(score[index].comment)),
     );
     return MaterialApp(
       home: Scaffold(
@@ -46,11 +45,11 @@ class _MyAppState extends State<MyApp> {
               itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
               itemBuilder: (context, _) => const Icon(
                 Icons.star,
-                color: Colors.amber,
+                color: Colors.yellow,
               ),
-              onRatingUpdate: (value) {
+              onRatingUpdate: (rating) {
                 setState(() {
-                  rate = value;
+                  rate = rating;
                   enabled = true;
                 });
               },
@@ -60,28 +59,30 @@ class _MyAppState extends State<MyApp> {
               enabled: enabled,
               decoration: const InputDecoration(
                 hintText: '한마디 해주세요',
-                label: Text('뭘까'),
+                label: Text('한마디'),
                 border: OutlineInputBorder(),
               ),
               maxLength: 30,
             ),
             ElevatedButton(
               onPressed: enabled
-                  ? () {
+                  ? () async {
+                      var api = MealApi();
+                      var evalDate = DateTime.now().toString().split(' ')[0];
+                      var res =
+                          await api.insert(evalDate, rate, controller.text);
+                      print(res);
                       score.add(
-                        Score(
-                          rate: rate,
-                          comment: controller.text,
-                        ),
+                        Score(rate: rate, comment: controller.text),
                       );
                       setState(() {
-                        listView;
+                        ListView;
                       });
                     }
                   : null,
               child: const Text('저장하기'),
             ),
-            Expanded(child: listView),
+            Expanded(child: listView)
           ],
         ),
       ),
